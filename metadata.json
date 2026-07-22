@@ -1,0 +1,6 @@
+{
+  "name": "Nekto Voice Chat",
+  "description": "Anonymous voice and text chat matching system inspired by Nekto.me with real WebRTC/WebSocket multi-user voice calls, AI voice companion mode, audio voice effects, and filters.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
