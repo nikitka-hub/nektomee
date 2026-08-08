@@ -23,6 +23,7 @@ export interface PeerInfo {
   ageGroup: AgeGroup;
   matchedAt: number;
   isDirectLink?: boolean;
+  name?: string;
 }
 
 export interface ChatMessage {

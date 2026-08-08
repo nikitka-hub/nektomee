@@ -18,6 +18,7 @@ interface ConnectedUser {
   id: string;
   ws: WebSocket;
   status: 'idle' | 'searching' | 'waiting_link' | 'in_call';
+  searchingStartedAt?: number;
   filters?: {
     myGender: 'male' | 'female' | 'any';
     targetGender: 'male' | 'female' | 'any';
@@ -49,7 +50,9 @@ const rooms = new Map<string, Room>();
 const directRooms = new Map<string, DirectRoomWaiting>();
 
 function broadcastStats() {
-  const searchingCount = Array.from(users.values()).filter((u) => u.status === 'searching' || u.status === 'waiting_link').length;
+  const searchingCount = Array.from(users.values()).filter(
+    (u) => u.status === 'searching' || u.status === 'waiting_link'
+  ).length;
   const activeCallsCount = rooms.size;
   const onlineCount = users.size;
 
@@ -72,6 +75,7 @@ function broadcastStats() {
 function matchUsers() {
   const searching = Array.from(users.values()).filter((u) => u.status === 'searching');
 
+  // Match real human with real human
   for (let i = 0; i < searching.length; i++) {
     const userA = searching[i];
     if (userA.status !== 'searching') continue;
@@ -79,6 +83,9 @@ function matchUsers() {
     for (let j = i + 1; j < searching.length; j++) {
       const userB = searching[j];
       if (userB.status !== 'searching') continue;
+
+      // Prevent self-matching if same socket or user
+      if (userA.id === userB.id) continue;
 
       // Match criteria
       const genderMatchA =
@@ -179,6 +186,7 @@ wss.on('connection', (ws) => {
       switch (msg.type) {
         case 'start_search': {
           user.status = 'searching';
+          user.searchingStartedAt = Date.now();
           user.filters = msg.payload;
           broadcastStats();
           matchUsers();
@@ -381,6 +389,7 @@ wss.on('connection', (ws) => {
 
             // Clean room
             rooms.delete(roomId);
+
             user.currentRoomId = undefined;
             user.partnerId = undefined;
             user.status = 'idle';
@@ -415,6 +424,7 @@ wss.on('connection', (ws) => {
             // Auto re-search if user requested skip
             if (msg.type === 'skip_partner' && user.filters) {
               user.status = 'searching';
+              user.searchingStartedAt = Date.now();
               ws.send(
                 JSON.stringify({
                   type: 'start_search_ack',

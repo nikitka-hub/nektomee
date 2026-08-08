@@ -121,7 +121,7 @@ export const CallScreen: React.FC<CallScreenProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-extrabold text-base">
-                  {peer.isDirectLink ? 'Диалог по ссылке' : 'Анонимный Собеседник'}
+                  {peer.name ? peer.name : peer.isDirectLink ? 'Диалог по ссылке' : 'Анонимный Собеседник'}
                 </h3>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </div>

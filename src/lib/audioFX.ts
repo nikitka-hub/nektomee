@@ -17,6 +17,11 @@ export class AudioEngine {
 
   public isMuted: boolean = false;
   public volume: number = 1.0;
+  private simulatedRemoteVol: number = 0;
+
+  public setSimulatedRemoteVolume(vol: number) {
+    this.simulatedRemoteVol = vol;
+  }
 
   public getMicStream(): MediaStream | null {
     if (this.micStream && this.micStream.active) {
@@ -96,6 +101,9 @@ export class AudioEngine {
   }
 
   public getRemoteVolume(): number {
+    if (this.simulatedRemoteVol > 0) {
+      return this.simulatedRemoteVol;
+    }
     if (!this.remoteAnalyser) return 0;
     const dataArray = new Uint8Array(this.remoteAnalyser.frequencyBinCount);
     this.remoteAnalyser.getByteFrequencyData(dataArray);
